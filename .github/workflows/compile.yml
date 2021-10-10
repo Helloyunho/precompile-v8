@@ -2,7 +2,8 @@ name: Compile and Pack V8
 
 on:
   push:
-    branches: [main]
+    tags:
+      - 'v*'
 
 jobs:
   build:
@@ -15,6 +16,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Fetch Tag
+        run: echo "tag=`echo $GITHUB_REF | tr 'refs/tags/' ''`" >> $GITHUB_ENV
 
       - name: Install depot_tools
         run: |
@@ -30,7 +34,7 @@ jobs:
       - name: Sync Dependencies
         run: |
           cd v8
-          gclient sync
+          gclient sync --revision `echo ${{env.tag}} | tr -d v`
 
       - name: Make Output Directory
         run: mkdir out
@@ -50,20 +54,16 @@ jobs:
           mkdir -p package
           cp out/obj/libv8_monolith.a package/libv8.a
           cp -r v8/include package/include
-          tar czf out/v8-latest-${{runner.os}}.tar.gz -C package .
+          tar czf out/v8-${{env.tag}}-${{runner.os}}.tar.gz -C package .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
-          name: v8-latest-${{runner.os}}
+          name: v8-${{env.tag}}-${{runner.os}}
           path: package
 
-      - name: Upload release asset
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+      - name: Release V8
+        uses: softprops/action-gh-release@v1
         with:
-          upload_url: '${{ github.event.release.upload_url }}'
-          asset_path: 'out/v8-latest-${{runner.os}}.tar.gz'
-          asset_name: 'v8-latest-${{runner.os}}.tar.gz'
-          asset_content_type: application/gzip
+          files: out/v8-${{env.tag}}-${{runner.os}}.tar.gz
+          body: Preconpiled V8
