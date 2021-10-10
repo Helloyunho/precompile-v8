@@ -46,11 +46,13 @@ jobs:
           gn gen ../out --args="`tr '\n' ' ' < ../gn_args`"
         
       - name: Compile V8
-        run: ninja -v -C ../out v8_monolith
+        run: |
+          cd v8
+          ninja -v -C ../out v8_monolith
         
       - name: Pack V8
         run: |
-          mkdir package
+          mkdir -p package
           cp out/obj/libv8_monolith.a package/libv8.a
           cp -r v8/include package/include
           tar czf out/v8-latest-${{runner.os}}.tar.gz -C package .
