@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Fetch Tag
-        run: echo "tag=$GITHUB_REF".replace('refs/tags/', '') >> $GITHUB_ENV
+        run: echo "tag=$env:GITHUB_REF".replace('refs/tags/', '') >> $GITHUB_ENV
 
       - name: Install depot_tools
         run: |
@@ -27,8 +27,8 @@ jobs:
           Expand-Archive -Path depot_tools.zip -DestinationPath $HOME\depot_tools
           $Env:Path = "$HOME\depot_tools;" + $Env:Path
           $Env:DEPOT_TOOLS_WIN_TOOLCHAIN = 0
-          echo "$HOME\depot_tools" >> $GITHUB_PATH
-          echo "DEPOT_TOOLS_WIN_TOOLCHAIN=0" >> $GITHUB_ENV
+          echo "$HOME\depot_tools" >> $env:GITHUB_PATH
+          echo "DEPOT_TOOLS_WIN_TOOLCHAIN=0" >> $env:GITHUB_ENV
           gclient
 
       - name: Clone V8
