@@ -12,8 +12,6 @@ jobs:
       matrix:
         arch: [x86_64, arm64]
 
-    runs-on: windows-latest
-
     steps:
       - uses: actions/checkout@v2
 
@@ -23,7 +21,7 @@ jobs:
       - name: Install depot_tools
         run: |
           cd $HOME
-          wget https://storage.googleapis.com/chrome-infra/depot_tools.zip
+          Invoke-WebRequest -uri https://storage.googleapis.com/chrome-infra/depot_tools.zip -OutFile depot_tools.zip
           Expand-Archive -Path depot_tools.zip -DestinationPath $HOME\depot_tools
           $Env:Path = "$HOME\depot_tools;" + $Env:Path
           $Env:DEPOT_TOOLS_WIN_TOOLCHAIN = 0
@@ -60,7 +58,7 @@ jobs:
       - name: Pack V8
         run: |
           mkdir -p package
-          cp out\obj\libv8_monolith.a package\libv8.a
+          cp out\obj\libv8_monolith.dll package\libv8.dll
           cp v8\include package\include
           tar -czf out\v8-${{env.tag}}-${{runner.os}}-${{matrix.arch}}-${{matrix.target}}.tar.gz -C package .
 
