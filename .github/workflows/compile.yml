@@ -1,0 +1,62 @@
+name: Compile and Pack V8
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install depot_tools
+        run: |
+          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git $HOME/depot_tools
+          export PATH=$HOME/depot_tools:$PATH
+          echo "$HOME/depot_tools" >> $GITHUB_PATH
+          gclient
+
+      - name: Clone V8
+        run: |
+          fetch v8
+
+      - name: Sync Dependencies
+        run: |
+          cd v8
+          gclient sync
+      
+      - name: Install Additional Dependencies
+        if: ${{ runner.os == "Linux" }}
+        run: |
+          cd v8
+          ./build/install-build-deps.sh
+          
+      - name: Make Output Directory
+        run: mkdir out
+      
+      - name: Generate Build Files
+        run: |
+          cd v8
+          gn gen ../out --args="`tr '\n' ' ' < ../gn_args`"
+        
+      - name: Compile V8
+        run: ninja -v -C ../out v8_monolith
+        
+      - name: Pack V8
+        run: |
+          mkdir package
+          cp out/obj/libv8_monolith.a package/libv8.a
+          cp -r v8/include package/include
+          tar czf out/v8-latest-${{runner.os}}.tar.gz -C package .
+        
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: v8-latest-${{runner.os}}
+          path: package
