@@ -7,6 +7,7 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest]
 
@@ -62,3 +63,13 @@ jobs:
         with:
           name: v8-latest-${{runner.os}}
           path: package
+      
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        with:
+          upload_url: "${{ github.event.release.upload_url }}"
+          asset_path: "out/v8-latest-${{runner.os}}.tar.gz"
+          asset_name: "v8-latest-${{runner.os}}.tar.gz"
+          asset_content_type: application/gzip
