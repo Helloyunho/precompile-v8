@@ -71,16 +71,16 @@ jobs:
           mkdir -p package
           cp out/obj/libv8_monolith.a package/libv8.a
           cp -r v8/include package/include
-          tar czf out/v8-${{env.tag}}-${{runner.os}}.tar.gz -C package .
+          tar czf out/v8-${{env.tag}}-${{runner.os}}-${{matrix.target}}.tar.gz -C package .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
-          name: v8-${{env.tag}}-${{runner.os}}
+          name: v8-${{env.tag}}-${{runner.os}}-${{matrix.target}}
           path: package
 
       - name: Release V8
         uses: softprops/action-gh-release@v1
         with:
-          files: out/v8-${{env.tag}}-${{runner.os}}.tar.gz
+          files: out/v8-${{env.tag}}-${{runner.os}}-${{matrix.target}}.tar.gz
           body: Preconpiled V8
