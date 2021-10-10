@@ -2,7 +2,7 @@ name: Compile and Pack V8
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
@@ -31,45 +31,39 @@ jobs:
         run: |
           cd v8
           gclient sync
-      
-#      - name: Install Additional Dependencies
-#        if: ${{ runner.os == 'Linux' }}
-#        run: |
-#          cd v8
-#          ./build/install-build-deps.sh
-          
+
       - name: Make Output Directory
         run: mkdir out
-      
+
       - name: Generate Build Files
         run: |
           cd v8
           gn gen ../out --args="`tr '\n' ' ' < ../gn_args`"
-        
+
       - name: Compile V8
         run: |
           cd v8
           ninja -v -C ../out v8_monolith
-        
+
       - name: Pack V8
         run: |
           mkdir -p package
           cp out/obj/libv8_monolith.a package/libv8.a
           cp -r v8/include package/include
           tar czf out/v8-latest-${{runner.os}}.tar.gz -C package .
-        
+
       - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
           name: v8-latest-${{runner.os}}
           path: package
-      
+
       - name: Upload release asset
         uses: actions/upload-release-asset@v1.0.1
         env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
-          upload_url: "${{ github.event.release.upload_url }}"
-          asset_path: "out/v8-latest-${{runner.os}}.tar.gz"
-          asset_name: "v8-latest-${{runner.os}}.tar.gz"
+          upload_url: '${{ github.event.release.upload_url }}'
+          asset_path: 'out/v8-latest-${{runner.os}}.tar.gz'
+          asset_name: 'v8-latest-${{runner.os}}.tar.gz'
           asset_content_type: application/gzip
