@@ -1,0 +1,73 @@
+name: Compile and Pack V8 (Windows)
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, arm64]
+
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Fetch Tag
+        run: echo "tag=$GITHUB_REF".replace('refs/tags/', '') >> $GITHUB_ENV
+
+      - name: Install depot_tools
+        run: |
+          cd $HOME
+          wget https://storage.googleapis.com/chrome-infra/depot_tools.zip
+          Expand-Archive -Path depot_tools.zip -DestinationPath $HOME\depot_tools
+          echo "$HOME\depot_tools" >> $GITHUB_PATH
+
+      - name: Clone V8
+        run: |
+          fetch v8
+
+      - name: Sync Dependencies
+        run: |
+          cd v8
+          gclient sync --revision "${{env.tag}}".replace('v', '')
+
+      - name: Make Output Directory
+        run: mkdir out
+
+      - name: Generate Build Files
+        run: |
+          cd v8
+          if ("${{matrix.arch}}" -eq "arm64") {
+            gn gen ..\out --args="$((Get-Content -Path ..\gn_args).replace("`n", ' ')) target_cpu=`"arm64`" v8_target_cpu=`"arm64`""
+          } else {
+            gn gen ..\out --args="$((Get-Content -Path ..\gn_args).replace("`n", ' '))"
+          }
+
+      - name: Compile V8
+        run: |
+          cd v8
+          ninja -v -C ..\out v8_monolith
+
+      - name: Pack V8
+        run: |
+          mkdir -p package
+          copy out\obj\libv8_monolith.a package\libv8.a
+          cp -r v8\include package\include
+          tar czf out\v8-${{env.tag}}-${{runner.os}}-${{matrix.arch}}-${{matrix.target}}.tar.gz -C package .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: v8-${{env.tag}}-${{runner.os}}-${{matrix.arch}}-${{matrix.target}}
+          path: package
+
+      - name: Release V8
+        uses: softprops/action-gh-release@v1
+        with:
+          files: out\v8-${{env.tag}}-${{runner.os}}-${{matrix.arch}}-${{matrix.target}}.tar.gz
+          body: Preconpiled V8
