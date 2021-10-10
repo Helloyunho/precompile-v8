@@ -11,6 +11,15 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest]
+        arch: [x86_64, arm64, mobile]
+        target: [desktop]
+        include:
+          - os: macos-latest
+            arch: mobile
+            target: ios
+          - os: ubuntu-latest
+            arch: mobile
+            target: android
 
     runs-on: ${{ matrix.os }}
 
@@ -42,7 +51,15 @@ jobs:
       - name: Generate Build Files
         run: |
           cd v8
-          gn gen ../out --args="`tr '\n' ' ' < ../gn_args`"
+          if [ "${{matrix.arch}}" = "arm64" ]; then
+            gn gen ../out --args="`tr '\n' ' ' < ../gn_args` target_cpu=\"arm64\" v8_target_cpu=\"arm64\""
+          elif [ "${{matrix.target}}" = "ios" ]; then
+            gn gen ../out --args="`tr '\n' ' ' < ../gn_ios`"
+          elif [ "${{matrix.target}}" = "android" ]; then
+            gn gen ../out --args="`tr '\n' ' ' < ../gn_android`"
+          else
+            gn gen ../out --args="`tr '\n' ' ' < ../gn_args`"
+          fi
 
       - name: Compile V8
         run: |
