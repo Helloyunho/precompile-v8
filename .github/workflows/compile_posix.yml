@@ -94,7 +94,7 @@ jobs:
           fi
 
       - name: Sync Dependencies for arm64
-        if: ${{matrix.arch == "arm64"}}
+        if: ${{matrix.arch == 'arm64'}}
         run: |
           cd v8
           gclient sync --revision `echo ${{env.tag}} | tr -d v`
