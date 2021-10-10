@@ -11,14 +11,14 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest]
-        arch: [x86_64, arm64, mobile]
+        arch: [x86_64, arm64]
         target: [desktop]
         include:
           - os: macos-latest
-            arch: mobile
+            arch: arm64
             target: ios
           - os: ubuntu-latest
-            arch: mobile
+            arch: arm64
             target: android
 
     runs-on: ${{ matrix.os }}
@@ -52,11 +52,13 @@ jobs:
         run: |
           cd v8
           if [ "${{matrix.arch}}" = "arm64" ]; then
-            gn gen ../out --args="`tr '\n' ' ' < ../gn_args` target_cpu=\"arm64\" v8_target_cpu=\"arm64\""
-          elif [ "${{matrix.target}}" = "ios" ]; then
-            gn gen ../out --args="`tr '\n' ' ' < ../gn_ios`"
-          elif [ "${{matrix.target}}" = "android" ]; then
-            gn gen ../out --args="`tr '\n' ' ' < ../gn_android`"
+            if [ "${{matrix.target}}" = "ios" ]; then
+              gn gen ../out --args="`tr '\n' ' ' < ../gn_ios`"
+            elif [ "${{matrix.target}}" = "android" ]; then
+              gn gen ../out --args="`tr '\n' ' ' < ../gn_android`"
+            else
+              gn gen ../out --args="`tr '\n' ' ' < ../gn_args` target_cpu=\"arm64\" v8_target_cpu=\"arm64\""
+            fi
           else
             gn gen ../out --args="`tr '\n' ' ' < ../gn_args`"
           fi
