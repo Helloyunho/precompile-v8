@@ -31,11 +31,11 @@ jobs:
           cd v8
           gclient sync
       
-      - name: Install Additional Dependencies
-        if: ${{ runner.os == 'Linux' }}
-        run: |
-          cd v8
-          ./build/install-build-deps.sh
+#      - name: Install Additional Dependencies
+#        if: ${{ runner.os == 'Linux' }}
+#        run: |
+#          cd v8
+#          ./build/install-build-deps.sh
           
       - name: Make Output Directory
         run: mkdir out
