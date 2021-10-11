@@ -38,7 +38,7 @@ jobs:
       - name: Sync Dependencies
         run: |
           cd v8
-          gclient sync --revision "${{env.tag}}".replace('v', '')
+          gclient sync --revision "$env:tag".replace('v', '')
 
       - name: Make Output Directory
         run: mkdir out
