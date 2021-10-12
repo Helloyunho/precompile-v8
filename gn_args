@@ -1,6 +1,6 @@
 clang_use_chrome_plugins=false
 is_component_build=false
-library=shared
+library="shared"
 is_debug=false
 linux_use_bundled_binutils=false
 strip_debug_info=true
