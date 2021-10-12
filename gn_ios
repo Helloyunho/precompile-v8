@@ -1,7 +1,7 @@
 enable_ios_bitcode = true
 ios_deployment_target = 10
 clang_use_chrome_plugins=false
-is_component_build=false
+is_component_build=true
 is_debug=false
 target_cpu = "arm64"
 target_os = "ios"

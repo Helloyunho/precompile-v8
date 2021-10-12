@@ -101,7 +101,7 @@ jobs:
       - name: Pack V8
         run: |
           mkdir -p package
-          # cp -r v8/include package/include
+          cp -r v8/include package/include
           tar czf package/v8-${{env.tag}}-${{runner.os}}-${{matrix.arch}}-${{matrix.target}}.tar.gz -C out .
 
       - name: Upload artifact
