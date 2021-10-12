@@ -87,10 +87,10 @@ jobs:
             elif [ "${{matrix.target}}" = "android" ]; then
               gn gen ../out --args="`tr '\n' ' ' < ../gn_android`"
             else
-              gn gen ../out --args="`tr '\n' ' ' < ../gn_args` target_cpu=\"arm64\" v8_target_cpu=\"arm64\""
+              gn gen ../out --args="`tr '\n' ' ' < ../gn_posix` target_cpu=\"arm64\" v8_target_cpu=\"arm64\""
             fi
           else
-            gn gen ../out --args="`tr '\n' ' ' < ../gn_args`"
+            gn gen ../out --args="`tr '\n' ' ' < ../gn_posix`"
           fi
 
       - name: Compile V8

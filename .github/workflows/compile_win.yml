@@ -47,9 +47,9 @@ jobs:
         run: |
           cd v8
           if ("${{matrix.arch}}" -eq "arm64") {
-            gn gen ..\out --args="$((Get-Content -Path ..\gn_args).replace("`n", ' ')) target_cpu=`"arm64`" v8_target_cpu=`"arm64`""
+            gn gen ..\out --args="$((Get-Content -Path ..\gn_win).replace("`n", ' ')) target_cpu=`"arm64`" v8_target_cpu=`"arm64`""
           } else {
-            gn gen ..\out --args="$((Get-Content -Path ..\gn_args).replace("`n", ' '))"
+            gn gen ..\out --args="$((Get-Content -Path ..\gn_win).replace("`n", ' '))"
           }
 
       - name: Compile V8
