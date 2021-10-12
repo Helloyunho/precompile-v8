@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Fetch Tag
-        run: echo "tag=$env:GITHUB_REF".replace('refs/tags/', '') >> $GITHUB_ENV
+        run: echo "TAG=$env:GITHUB_REF".replace('refs/tags/', '') >> $GITHUB_ENV
 
       - name: Install depot_tools
         run: |
@@ -38,7 +38,7 @@ jobs:
       - name: Sync Dependencies
         run: |
           cd v8
-          gclient sync --revision "$env:tag".replace('v', '')
+          gclient sync --revision "$env:TAG".replace('v', '')
 
       - name: Make Output Directory
         run: mkdir out
@@ -60,17 +60,17 @@ jobs:
       - name: Pack V8
         run: |
           mkdir -p package
-          tar -czf package\v8-${{env.tag}}-${{runner.os}}-${{matrix.arch}}-${{matrix.target}}.tar.gz -C out .
           cp v8\include out\include
+          tar -czf package\v8-${{env.TAG}}-${{runner.os}}-${{matrix.arch}}-${{matrix.target}}.tar.gz -C out .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
-          name: v8-${{env.tag}}-${{runner.os}}-${{matrix.arch}}-${{matrix.target}}
+          name: v8-${{env.TAG}}-${{runner.os}}-${{matrix.arch}}-${{matrix.target}}
           path: package
 
       - name: Release V8
         uses: softprops/action-gh-release@v1
         with:
-          files: package\v8-${{env.tag}}-${{runner.os}}-${{matrix.arch}}-${{matrix.target}}.tar.gz
+          files: package\v8-${{env.TAG}}-${{runner.os}}-${{matrix.arch}}-${{matrix.target}}.tar.gz
           body: Preconpiled V8
